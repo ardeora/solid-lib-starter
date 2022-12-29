@@ -1,7 +1,7 @@
 {
-  "version": "0.0.0",
-  "name": "{{name_of_lib}}",
-  "description": "{{desc_of_lib}}",
+  "version": "0.4.0",
+  "name": "@adeora/solid-query",
+  "description": "Testing stuff",
   "license": "MIT",
   "author": "{{me}}",
   "contributors": [],
@@ -20,7 +20,7 @@
     "dist"
   ],
   "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
+  "module": "dist/esm/index.jsx",
   "types": "dist/types/index.d.ts",
   "exports": {
     ".": {
@@ -43,17 +43,22 @@
     "update-deps": "taze -w && pnpm i",
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@tanstack/query-core": "4.20.2"
+  },
   "peerDependencies": {
-    "solid-js": ">=1.0.0"
+    "solid-js": ">=1.0.0",
+    "@tanstack/query-core": "4.20.2"
   },
   "devDependencies": {
+    "@tanstack/query-core": "4.20.2",
+    "@types/node": "^18.11.18",
     "prettier": "2.7.1",
     "rollup": "^2.77.2",
     "rollup-preset-solid": "^1.4.0",
-    "typescript": "^4.7.4",
     "solid-js": "^1.4.8",
     "taze": "^0.7.6",
+    "typescript": "^4.7.4",
     "vite": "^3.0.4",
     "vite-plugin-solid": "^2.3.0"
   },
