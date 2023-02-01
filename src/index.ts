@@ -1,4 +1,19 @@
+/* istanbul ignore file */
+
+// Re-export core
+export * from '@tanstack/query-core'
+
 // Solid Query
-export { createQuery } from "./createQuery";
-export { QueryClient } from "./queryClient";
-export { QueryClientProvider, useQueryClient } from "./QueryClientProvider";
+export * from './types'
+export { createQuery } from './createQuery'
+export {
+  defaultContext,
+  QueryClientProvider,
+  useQueryClient,
+} from './QueryClientProvider'
+export type { QueryClientProviderProps } from './QueryClientProvider'
+export { useIsFetching } from './useIsFetching'
+export { useIsMutating } from './useIsMutating'
+export { createMutation } from './createMutation'
+export { createInfiniteQuery } from './createInfiniteQuery'
+export { createQueries } from './createQueries'

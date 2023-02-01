@@ -1,25 +1,110 @@
-import type { QueryClient } from "./queryClient";
-import type { JSX } from "solid-js";
-import { createContext, useContext } from "solid-js";
+import type { QueryClient } from '@tanstack/query-core'
+import type { Context, JSX } from 'solid-js'
+import {
+  createContext,
+  useContext,
+  onMount,
+  onCleanup,
+  mergeProps,
+} from 'solid-js'
+import type { ContextOptions } from './types'
 
-export const DefaultContext = createContext<QueryClient | undefined>(undefined);
+declare global {
+  interface Window {
+    SolidQueryClientContext?: Context<QueryClient | undefined>
+  }
+}
 
-export const useQueryClient = () => {
-  const queryClient = useContext(DefaultContext);
+export const defaultContext = createContext<QueryClient | undefined>(undefined)
+const QueryClientSharingContext = createContext<boolean>(false)
 
-  // Will always have queryClient as undefined
-  if (!queryClient) {
-    throw new Error("No QueryClient set, use QueryClientProvider to set one");
+// If we are given a context, we will use it.
+// Otherwise, if contextSharing is on, we share the first and at least one
+// instance of the context across the window
+// to ensure that if Solid Query is used across
+// different bundles or microfrontends they will
+// all use the same **instance** of context, regardless
+// of module scoping.
+function getQueryClientContext(
+  context: Context<QueryClient | undefined> | undefined,
+  contextSharing: boolean,
+) {
+  if (context) {
+    return context
+  }
+  if (contextSharing && typeof window !== 'undefined') {
+    if (!window.SolidQueryClientContext) {
+      window.SolidQueryClientContext = defaultContext
+    }
+
+    return window.SolidQueryClientContext
   }
 
-  return queryClient;
-};
+  return defaultContext
+}
 
-type QueryClientProviderProps = {
-  client: QueryClient;
-  children?: JSX.Element;
-};
+export const useQueryClient = ({ context }: ContextOptions = {}) => {
+  const queryClient = useContext(
+    getQueryClientContext(context, useContext(QueryClientSharingContext)),
+  )
 
-export const QueryClientProvider = (props: QueryClientProviderProps): JSX.Element => {
-  return <DefaultContext.Provider value={props.client}>{props.children}</DefaultContext.Provider>;
-};
+  if (!queryClient) {
+    throw new Error('No QueryClient set, use QueryClientProvider to set one')
+  }
+
+  return queryClient
+}
+
+type QueryClientProviderPropsBase = {
+  client: QueryClient
+  children?: JSX.Element
+}
+type QueryClientProviderPropsWithContext = ContextOptions & {
+  contextSharing?: never
+} & QueryClientProviderPropsBase
+type QueryClientProviderPropsWithContextSharing = {
+  context?: never
+  contextSharing?: boolean
+} & QueryClientProviderPropsBase
+
+export type QueryClientProviderProps =
+  | QueryClientProviderPropsWithContext
+  | QueryClientProviderPropsWithContextSharing
+
+export const QueryClientProvider = (
+  props: QueryClientProviderProps,
+): JSX.Element => {
+  const mergedProps = mergeProps(
+    {
+      contextSharing: false,
+    },
+    props,
+  )
+  onMount(() => {
+    mergedProps.client.mount()
+
+    if (process.env.NODE_ENV !== 'production' && mergedProps.contextSharing) {
+      mergedProps.client
+        .getLogger()
+        .error(
+          `The contextSharing option has been deprecated and will be removed in the next major version`,
+        )
+    }
+  })
+  onCleanup(() => mergedProps.client.unmount())
+
+  const QueryClientContext = getQueryClientContext(
+    mergedProps.context,
+    mergedProps.contextSharing,
+  )
+
+  return (
+    <QueryClientSharingContext.Provider
+      value={!mergedProps.context && mergedProps.contextSharing}
+    >
+      <QueryClientContext.Provider value={mergedProps.client}>
+        {mergedProps.children}
+      </QueryClientContext.Provider>
+    </QueryClientSharingContext.Provider>
+  )
+}

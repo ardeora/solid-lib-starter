@@ -12,8 +12,10 @@ specifiers:
   vite: ^3.0.4
   vite-plugin-solid: ^2.3.0
 
-devDependencies:
+dependencies:
   '@tanstack/query-core': 4.20.2
+
+devDependencies:
   '@types/node': 18.11.18
   prettier: 2.7.1
   rollup: 2.79.1
@@ -1425,7 +1427,7 @@ packages:
 
   /@tanstack/query-core/4.20.2:
     resolution: {integrity: sha512-50tydwMY+fZuSPHiW+mdMQHSgjR9+3xXDoLBPt1tJWyF0mZDjMetlBxLWNaFb/Aid/ml0ZE5nRUW7CZCtwzpHQ==}
-    dev: true
+    dev: false
 
   /@tootallnate/once/2.0.0:
     resolution: {integrity: sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==}
