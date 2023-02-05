@@ -1,5 +1,5 @@
 {
-  "version": "0.13.0",
+  "version": "0.16.0",
   "name": "@adeora/solid-query",
   "description": "Testing stuff",
   "license": "MIT",
@@ -44,14 +44,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@tanstack/query-core": "4.20.2"
+    "@tanstack/query-core": "https://pkg.csb.dev/TanStack/query/commit/bc5a2a16/@tanstack/query-core"
   },
   "peerDependencies": {
     "solid-js": ">=1.0.0",
-    "@tanstack/query-core": "4.20.2"
+    "@tanstack/query-core": "https://pkg.csb.dev/TanStack/query/commit/bc5a2a16/@tanstack/query-core"
   },
   "devDependencies": {
-    "@tanstack/query-core": "4.20.2",
+    "@tanstack/query-core": "https://pkg.csb.dev/TanStack/query/commit/bc5a2a16/@tanstack/query-core",
     "@types/node": "^18.11.18",
     "prettier": "2.7.1",
     "rollup": "^2.77.2",

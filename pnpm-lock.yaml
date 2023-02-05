@@ -1,7 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@tanstack/query-core': 4.20.2
+  '@tanstack/query-core': https://pkg.csb.dev/TanStack/query/commit/bc5a2a16/@tanstack/query-core
   '@types/node': ^18.11.18
   prettier: 2.7.1
   rollup: ^2.77.2
@@ -13,7 +13,7 @@ specifiers:
   vite-plugin-solid: ^2.3.0
 
 dependencies:
-  '@tanstack/query-core': 4.20.2
+  '@tanstack/query-core': '@pkg.csb.dev/TanStack/query/commit/bc5a2a16/@tanstack/query-core'
 
 devDependencies:
   '@types/node': 18.11.18
@@ -1424,10 +1424,6 @@ packages:
       picomatch: 2.3.1
       rollup: 2.79.1
     dev: true
-
-  /@tanstack/query-core/4.20.2:
-    resolution: {integrity: sha512-50tydwMY+fZuSPHiW+mdMQHSgjR9+3xXDoLBPt1tJWyF0mZDjMetlBxLWNaFb/Aid/ml0ZE5nRUW7CZCtwzpHQ==}
-    dev: false
 
   /@tootallnate/once/2.0.0:
     resolution: {integrity: sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==}
@@ -3492,3 +3488,9 @@ packages:
       y18n: 5.0.8
       yargs-parser: 21.1.1
     dev: true
+
+  '@pkg.csb.dev/TanStack/query/commit/bc5a2a16/@tanstack/query-core':
+    resolution: {tarball: https://pkg.csb.dev/TanStack/query/commit/bc5a2a16/@tanstack/query-core}
+    name: '@tanstack/query-core'
+    version: 4.24.3
+    dev: false
