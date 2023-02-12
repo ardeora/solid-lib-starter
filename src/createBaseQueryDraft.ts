@@ -40,15 +40,29 @@ export function createBaseQuery<
     observer.getOptimisticResult(defaultedOptions),
   );
 
-  const createSubscriber = (cb: (result: QueryObserverResult<TData, TError>) => void) => {
+  const createSubscriber = (
+    cb: (result: QueryObserverResult<TData, TError>) => void,
+    reject?: (reason?: any) => void,
+  ) => {
     return observer.subscribe((result) => {
+      if (isServer) {
+        console.log("Server side subscription");
+        console.log(result);
+      }
       notifyManager.batchCalls(() => {
         const unwrappedResult = { ...unwrap(result) };
-        if (queryResource()?.data && unwrappedResult.data) {
-          setState(unwrappedResult);
-          mutate(state);
+        setState(unwrappedResult);
+
+        if (isServer) {
+          if (unwrappedResult.isError) {
+            console.warn(unwrappedResult.error);
+            reject?.(unwrappedResult.error);
+            return;
+          }
+          if (!unwrappedResult.isInitialLoading) {
+            cb(unwrappedResult);
+          }
         } else {
-          setState(unwrappedResult);
           cb(unwrappedResult);
         }
       })();
@@ -62,7 +76,8 @@ export function createBaseQuery<
         | PromiseLike<QueryObserverResult<TData, TError> | undefined>
         | undefined,
     ) => void,
-  ) => createSubscriber(resolve);
+    reject: (reason?: any) => void,
+  ) => createSubscriber(resolve, reject);
 
   const createClientSubscriber = (refetch: () => void) => createSubscriber(refetch);
 
@@ -71,13 +86,14 @@ export function createBaseQuery<
    */
   let unsubscribe: (() => void) | null = null;
 
-  const [queryResource, { refetch, mutate }] = createResource<
+  const [queryResource, { refetch }] = createResource<
     QueryObserverResult<TData, TError> | undefined
   >(
     () => {
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         if (isServer) {
-          unsubscribe = createServerSubscriber(resolve);
+          defaultedOptions.retry = 0;
+          unsubscribe = createServerSubscriber(resolve, reject);
         } else {
           if (!unsubscribe) {
             unsubscribe = createClientSubscriber(() => refetch());
@@ -168,7 +184,7 @@ export function createBaseQuery<
       prop: keyof QueryObserverResult<TData, TError>,
     ): any {
       if (prop === "data") {
-        return queryResource()?.data;
+        return queryResource.latest?.data;
       }
       return Reflect.get(target, prop);
     },
