@@ -40,17 +40,27 @@ export function createBaseQuery<
     observer.getOptimisticResult(defaultedOptions),
   );
 
-  const createSubscriber = (cb: (result: QueryObserverResult<TData, TError>) => void) => {
+  const createCSubscriber = (cb: (result: QueryObserverResult<TData, TError>) => void) => {
     return observer.subscribe((result) => {
       notifyManager.batchCalls(() => {
         const unwrappedResult = { ...unwrap(result) };
-        if (queryResource()?.data && unwrappedResult.data) {
+        if (queryResource()?.data && unwrappedResult.data && !queryResource.loading) {
           setState(unwrappedResult);
           mutate(state);
         } else {
           setState(unwrappedResult);
           cb(unwrappedResult);
         }
+      })();
+    });
+  };
+
+  const createSSubscriber = (cb: (result: QueryObserverResult<TData, TError>) => void) => {
+    return observer.subscribe((result) => {
+      notifyManager.batchCalls(() => {
+        const unwrappedResult = { ...unwrap(result) };
+        setState(unwrappedResult);
+        cb(unwrappedResult);
       })();
     });
   };
@@ -62,9 +72,9 @@ export function createBaseQuery<
         | PromiseLike<QueryObserverResult<TData, TError> | undefined>
         | undefined,
     ) => void,
-  ) => createSubscriber(resolve);
+  ) => createSSubscriber(resolve);
 
-  const createClientSubscriber = (refetch: () => void) => createSubscriber(refetch);
+  const createClientSubscriber = (refetch: () => void) => createCSubscriber(refetch);
 
   /**
    * Unsubscribe is set lazily, so that we can subscribe after hydration when needed.
@@ -116,16 +126,17 @@ export function createBaseQuery<
             ],
           });
         }
-
         if (!unsubscribe) {
           /**
            * Do not refetch query on mount if query was fetched on server,
            * even if `staleTime` is not set.
            */
+          let newOptions = { ...defaultedOptions };
           if (defaultedOptions.staleTime || !defaultedOptions.initialData) {
-            defaultedOptions.refetchOnMount = false;
+            newOptions.refetchOnMount = false;
           }
-          setState(observer.getOptimisticResult(defaultedOptions));
+          observer.setOptions(newOptions);
+          setState(observer.getOptimisticResult(newOptions));
           unsubscribe = createClientSubscriber(() => refetch());
         }
       },
